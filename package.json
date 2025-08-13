@@ -1,11 +1,13 @@
 {
   "name": "@mohanputti/financial-planner-mcp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "MCP server for financial planning using Scripbox's proven financial planning algorithms",
   "license": "MIT",
   "author": "mohan.putti",
   "type": "module",
-  "bin": "./build/index.js",
+  "bin": {
+    "financial-planner-mcp": "build/index.js"
+  },
   "files": [
     "build",
     "README.md"
@@ -21,7 +23,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/MohanPutti/financial-planner-mcp.git"
+    "url": "git+https://github.com/MohanPutti/financial-planner-mcp.git"
   },
   "homepage": "https://github.com/MohanPutti/financial-planner-mcp#readme",
   "publishConfig": {
@@ -44,6 +46,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.10.0",
+    "@mohanputti/financial-planner-mcp": "^1.0.1",
     "@types/node-fetch": "^2.6.12",
     "node-fetch": "^3.3.2",
     "zod": "^3.24.2",
