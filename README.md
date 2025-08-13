@@ -151,18 +151,6 @@ This MCP server leverages **Scripbox's financial planning API**, which powers th
 - ✅ Investment timeline planning
 - ✅ Shortfall analysis
 
-**Phase 2** (Future - with Scripbox Auth):
-- Portfolio management and tracking
-- Investment execution tools
-- Transaction history and analysis
-- Real-time performance monitoring
-- Multi-goal optimization
-
-**Phase 3** (Advanced):
-- Tax planning integration
-- Risk assessment tools
-- Automated rebalancing suggestions
-- Market timing insights
 
 ## Contributing
 
