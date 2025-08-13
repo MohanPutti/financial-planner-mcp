@@ -25,6 +25,8 @@ This MCP server acts as a bridge between AI assistants and Scripbox's financial 
 claude mcp add financial-planner --scope local -- npx -y @mohanputti/financial-planner-mcp
 ```
 
+> **Note**: The command automatically uses the latest version (currently v1.0.4). If you encounter issues, you can specify the version explicitly: `npx -y @mohanputti/financial-planner-mcp@1.0.4`
+
 Or manually add to your MCP configuration:
 
 ```json
