@@ -213,9 +213,11 @@ async function main() {
   console.error("Financial Planner MCP server running on stdio");
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
-  main().catch((error) => {
-    console.error("Server error:", error);
-    process.exit(1);
-  });
-}
+// Debug: Check if this script is being executed directly
+console.error("Starting MCP server...");
+
+// Always run when executed as a script
+main().catch((error) => {
+  console.error("Server error:", error);
+  process.exit(1);
+});
