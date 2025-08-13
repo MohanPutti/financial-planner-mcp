@@ -20,7 +20,12 @@ This MCP server acts as a bridge between AI assistants and Scripbox's financial 
 
 ### With Claude Desktop/Code
 
-Add to your MCP configuration:
+**Quick Install Command:**
+```bash
+claude mcp add financial-planner --scope local -- npx -y @mohanputti/financial-planner-mcp
+```
+
+Or manually add to your MCP configuration:
 
 ```json
 {

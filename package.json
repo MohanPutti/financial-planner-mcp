@@ -1,13 +1,11 @@
 {
   "name": "@mohanputti/financial-planner-mcp",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "MCP server for financial planning using Scripbox's proven financial planning algorithms",
   "license": "MIT",
   "author": "mohan.putti",
   "type": "module",
-  "bin": {
-    "financial-planner-mcp": "build/index.js"
-  },
+  "bin": "./build/index.js",
   "files": [
     "build",
     "README.md"
