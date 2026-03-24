@@ -18,40 +18,44 @@ This MCP server acts as a bridge between AI assistants and Scripbox's financial 
 
 ## Usage
 
-### With Claude Desktop/Code
+### With Claude Code
 
-**Quick Install Command:**
+**Step 1: Install globally**
 ```bash
-claude mcp add financial-planner --scope local -- npx -y @mohanputti/financial-planner-mcp
+npm install -g @mohanputti/financial-planner-mcp
 ```
 
-> **Note**: The command automatically uses the latest version (currently v1.0.4). If you encounter issues, you can specify the version explicitly: `npx -y @mohanputti/financial-planner-mcp@1.0.4`
+**Step 2: Add to Claude Code**
+```bash
+claude mcp add financial-planner --scope user -- financial-planner-mcp
+```
 
-Or manually add to your MCP configuration:
+### With Claude Desktop / Cursor / Cline / Other MCP Clients
 
+**Step 1: Install globally**
+```bash
+npm install -g @mohanputti/financial-planner-mcp
+```
+
+**Step 2: Add to your MCP configuration**
+
+Find the installed binary path:
+```bash
+which financial-planner-mcp
+```
+
+Then add to your MCP config (e.g. `claude_desktop_config.json`):
 ```json
 {
   "mcpServers": {
-    "Financial Planner": {
-      "command": "npx",
-      "args": ["-y", "@mohanputti/financial-planner-mcp"]
+    "financial-planner": {
+      "command": "/path/to/financial-planner-mcp"
     }
   }
 }
 ```
 
-### With Cursor/Cline/Other MCP Clients
-
-```json
-{
-  "mcpServers": {
-    "Financial Planner": {
-      "command": "npx",
-      "args": ["-y", "@mohanputti/financial-planner-mcp"]
-    }
-  }
-}
-```
+> **Note**: Replace `/path/to/financial-planner-mcp` with the output of `which financial-planner-mcp`. Using `npx` is not recommended as it can cause connection failures due to download delays on first run.
 
 ### Local Development
 
@@ -77,15 +81,22 @@ npm run dev
 Transform financial goals into actionable investment strategies using Scripbox's proven algorithms.
 
 **Input Parameters:**
-- `goal_name` (string): Name of your financial goal (e.g., "Child Education", "Dream Home")
-- `goal_amount` (number): Target amount needed in INR
-- `goal_date` (string): When you need the money (YYYY-MM-DD format)
-- `current_wealth` (number, optional): Existing investments/savings in INR (default: 0)
-- `monthly_inflow` (number, optional): How much you can invest monthly in INR (default: 0)
-- `priority` (optional): Goal priority - "Low", "Medium", "High" (default: "Medium")
-- `inflation_rate` (optional): Expected inflation rate as decimal, e.g., 0.06 for 6% (default: 0)
-- `return_rate` (optional): Expected investment return as decimal, e.g., 0.12 for 12% (default: 0)
-- `investment_start_date` (optional): When to start investing (defaults to today)
+- `goals` (array, required): List of financial goals, each with:
+  - `goal_name` (string): Name of the goal (e.g., "Child Education", "Retirement")
+  - `amount` (number): Target amount in INR
+  - `date` (string): Year when the goal amount is needed (YYYY format, e.g., "2035")
+- `current_wealth` (array, optional): Existing investments, each with:
+  - `instrument_type` (string): e.g., "Mutual Funds", "Stocks" (default: "Current Wealth")
+  - `amount` (number): Current value in INR
+  - `growth_rate` (number): Expected return as decimal, e.g., 0.12 for 12%
+  - `lockin_date` (string, optional): Lock-in date in YYYY-MM-DD format
+- `current_monthly_savings` (array, optional): Ongoing SIPs/savings, each with:
+  - `instrument_type` (string): e.g., "SIP", "PF", "NPS" (default: "Current Savings")
+  - `amount` (number): Monthly amount in INR
+  - `growth_rate` (number): Expected return as decimal
+  - `lockin_date` (string, optional): Lock-in date in YYYY-MM-DD format
+- `inflation_rate` (optional): Expected inflation rate as decimal, e.g., 0.06 for 6% (default: 0.06)
+- `investment_start_date` (optional): When to start investing in YYYY-MM-DD format (defaults to today)
 
 **Example Usage with AI Assistant:**
 
