@@ -10,6 +10,9 @@ import {
   FinancialPlannerResponseSchema,
   type FinancialPlannerRequest,
   type ScripboxAPIRequest,
+  type GoalItem,
+  type CurrentWealthItem,
+  type CurrentMonthlySavingsItem,
 } from "./schemas.js";
 
 // Server configuration
@@ -33,9 +36,23 @@ const FINANCIAL_PLANNER_ENDPOINT = `${SCRIPBOX_BASE_URL}/possibility/new`;
 
 // Helper function to calculate investment end date (1 month before goal date)
 function calculateInvestmentEndDate(goalDate: string): string {
-  const date = new Date(goalDate);
-  date.setMonth(date.getMonth() - 1);
-  return date.toISOString().split('T')[0];
+  // If goalDate is just a year (YYYY), convert to full date
+  let fullDate: Date;
+  if (goalDate.length === 4 && /^\d{4}$/.test(goalDate)) {
+    fullDate = new Date(`${goalDate}-12-31`);
+  } else {
+    fullDate = new Date(goalDate);
+  }
+  fullDate.setMonth(fullDate.getMonth() - 1);
+  return fullDate.toISOString().split('T')[0];
+}
+
+// Helper function to convert year to full date
+function convertYearToDate(yearOrDate: string): string {
+  if (yearOrDate.length === 4 && /^\d{4}$/.test(yearOrDate)) {
+    return `${yearOrDate}-12-31`;
+  }
+  return yearOrDate;
 }
 
 // Helper function to get today's date in YYYY-MM-DD format
@@ -53,49 +70,76 @@ function calculateInflowEndDate(startDate: string): string {
 // Transform user input to Scripbox API format
 function transformToScripboxRequest(input: FinancialPlannerRequest): ScripboxAPIRequest {
   const investmentStartDate = input.investment_start_date || getTodayDate();
-  const investmentEndDate = calculateInvestmentEndDate(input.goal_date);
   const inflowEndDate = calculateInflowEndDate(investmentStartDate);
 
-  return {
-    current_portfolio: [
-      {
-        amount: input.current_wealth,
-        return_rate: input.return_rate,
+  // Calculate default return rate based on wealth instruments
+  const defaultReturnRate = 0.12; // 12% default return rate
+
+  // Transform current wealth items to current_portfolio format
+  const currentPortfolio = input.current_wealth.length > 0 
+    ? input.current_wealth.map((wealth: CurrentWealthItem) => ({
+        amount: wealth.amount,
+        return_rate: wealth.growth_rate,
+        type: wealth.instrument_type,
+        locked_till: wealth.lockin_date,
+        on_date: null,
+      }))
+    : [{
+        amount: 0,
+        return_rate: defaultReturnRate,
         type: "All",
         locked_till: null,
         on_date: null,
+      }];
+
+  // Transform goals array to Scripbox goals format
+  const goals = input.goals.map((goal: GoalItem) => {
+    const goalDate = convertYearToDate(goal.date);
+    const investmentEndDate = calculateInvestmentEndDate(goalDate);
+    
+    return {
+      title: goal.goal_name,
+      priority: "Medium" as const,
+      outflow: {
+        first_date: goalDate,
+        per_year: 1,
+        inflation_rate: input.inflation_rate,
+        total_years: "1",
       },
-    ],
-    goals: [
-      {
-        title: input.goal_name,
-        priority: input.priority,
-        outflow: {
-          first_date: input.goal_date,
-          per_year: 1,
-          inflation_rate: input.inflation_rate,
-          total_years: "1",
-        },
-        goal: {
-          amount: input.goal_amount.toString(),
-          on_date: null,
-          inflation_rate: input.inflation_rate,
-        },
-        future_annual_contribution: "0",
-        investment_end_date: investmentEndDate,
-        scripbox_portfolio_return_rate: input.return_rate,
+      goal: {
+        amount: goal.amount.toString(),
+        on_date: null,
+        inflation_rate: input.inflation_rate,
       },
-    ],
-    monthly_inflows: [
-      {
-        amount: input.monthly_inflow,
+      future_annual_contribution: "0",
+      investment_end_date: investmentEndDate,
+      scripbox_portfolio_return_rate: defaultReturnRate,
+    };
+  });
+
+  // Transform current monthly savings to monthly_inflows format
+  const monthlyInflows = input.current_monthly_savings.length > 0
+    ? input.current_monthly_savings.map((savings: CurrentMonthlySavingsItem) => ({
+        amount: savings.amount,
         start_date: investmentStartDate,
         end_date: inflowEndDate,
-        return_rate: input.return_rate,
+        return_rate: savings.growth_rate,
+        annual_increment_rate: 0,
+        locked_till: savings.lockin_date,
+      }))
+    : [{
+        amount: 0,
+        start_date: investmentStartDate,
+        end_date: inflowEndDate,
+        return_rate: defaultReturnRate,
         annual_increment_rate: 0,
         locked_till: null,
-      },
-    ],
+      }];
+
+  return {
+    current_portfolio: currentPortfolio,
+    goals: goals,
+    monthly_inflows: monthlyInflows,
     scripbox_portfolio: [],
     investment_start_date: investmentStartDate,
     annual_investment_increment_rate: 0,
@@ -104,7 +148,7 @@ function transformToScripboxRequest(input: FinancialPlannerRequest): ScripboxAPI
       type: "INR",
       exchange_rate: 1,
     },
-    scripbox_portfolio_return_rate: input.return_rate,
+    scripbox_portfolio_return_rate: defaultReturnRate,
     sip_stepper: 1000,
     sip_stepper_start: null,
     compute_min_sip: false,

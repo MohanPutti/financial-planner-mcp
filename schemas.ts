@@ -47,16 +47,35 @@ export const MonthlyInflowSchema = z.object({
   locked_till: z.string().nullable().default(null),
 });
 
-// Financial Planner Request Schema
+// Goal schema for multiple goals support
+export const GoalItemSchema = z.object({
+  goal_name: z.string().describe("The specific goal name"),
+  amount: z.number().describe("The future value of the goal amount in rupee terms"),
+  date: z.string().describe("The year in which the goal amount is needed in YYYY format"),
+});
+
+// Current wealth item schema
+export const CurrentWealthItemSchema = z.object({
+  instrument_type: z.string().default("Current Wealth").describe("Optional product or instrument type like mutual funds, stocks etc"),
+  amount: z.number().describe("The current amount of the wealth item in rupee terms"),
+  growth_rate: z.number().describe("Percentage growth rate returns for the specific instrument (as decimal, e.g., 0.10 for 10%)"),
+  lockin_date: z.string().nullable().default(null).describe("The lockin date to which the amount is locked in YYYY-MM-DD format"),
+});
+
+// Current monthly savings item schema  
+export const CurrentMonthlySavingsItemSchema = z.object({
+  instrument_type: z.string().default("Current Savings").describe("Optional product or instrument type like mutual funds SIP, PF, NPS, RD etc"),
+  amount: z.number().describe("The current monthly savings amount in rupee terms"),
+  growth_rate: z.number().describe("Percentage growth rate returns for the specific instrument (as decimal, e.g., 0.10 for 10%)"),
+  lockin_date: z.string().nullable().default(null).describe("The lockin date to which accumulated amount is locked in YYYY-MM-DD format"),
+});
+
+// Updated Financial Planner Request Schema supporting multiple goals
 export const FinancialPlannerRequestSchema = z.object({
-  goal_name: z.string().describe("Name of the financial goal"),
-  goal_amount: z.number().describe("Target amount for the goal in INR"),
-  goal_date: z.string().describe("Target date for achieving the goal (YYYY-MM-DD)"),
-  current_wealth: z.number().default(0).describe("Current wealth/portfolio value in INR"),
-  monthly_inflow: z.number().default(0).describe("Monthly savings/investment capacity in INR"),
-  priority: z.enum(["Low", "Medium", "High"]).default("Medium").describe("Priority of the goal"),
-  inflation_rate: z.number().default(0).describe("Expected inflation rate (as decimal, e.g., 0.07 for 7%)"),
-  return_rate: z.number().default(0).describe("Expected return rate on investments (as decimal)"),
+  goals: z.array(GoalItemSchema).min(1).describe("The list of all goals of the user"),
+  current_wealth: z.array(CurrentWealthItemSchema).default([]).describe("The list of all current wealth of the user"),
+  current_monthly_savings: z.array(CurrentMonthlySavingsItemSchema).default([]).describe("The list of all current monthly savings the user is already doing"),
+  inflation_rate: z.number().default(0.06).describe("Expected inflation rate (as decimal, e.g., 0.06 for 6%)"),
   investment_start_date: z.string().optional().describe("When to start investing (YYYY-MM-DD). Defaults to today"),
 });
 
@@ -133,3 +152,6 @@ export type FinancialPlannerRequest = z.infer<typeof FinancialPlannerRequestSche
 export type FinancialPlannerResponse = z.infer<typeof FinancialPlannerResponseSchema>;
 export type ScripboxAPIRequest = z.infer<typeof ScripboxAPIRequestSchema>;
 export type GoalResponse = z.infer<typeof GoalResponseSchema>;
+export type GoalItem = z.infer<typeof GoalItemSchema>;
+export type CurrentWealthItem = z.infer<typeof CurrentWealthItemSchema>;
+export type CurrentMonthlySavingsItem = z.infer<typeof CurrentMonthlySavingsItemSchema>;
