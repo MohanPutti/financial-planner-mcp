@@ -25,9 +25,19 @@ This MCP server acts as a bridge between AI assistants and Scripbox's financial 
 npm install -g @mohanputti/financial-planner-mcp
 ```
 
-**Step 2: Add to Claude Code**
+**Step 2: Find the binary path**
 ```bash
-claude mcp add financial-planner --scope user -- financial-planner-mcp
+which financial-planner-mcp
+```
+
+**Step 3: Add to Claude Code using the full path**
+```bash
+claude mcp add financial-planner --scope user -- /full/path/to/financial-planner-mcp
+```
+
+For example, if you use nvm:
+```bash
+claude mcp add financial-planner --scope user -- ~/.nvm/versions/node/$(node -v)/bin/financial-planner-mcp
 ```
 
 ### With Claude Desktop / Cursor / Cline / Other MCP Clients
@@ -37,25 +47,23 @@ claude mcp add financial-planner --scope user -- financial-planner-mcp
 npm install -g @mohanputti/financial-planner-mcp
 ```
 
-**Step 2: Add to your MCP configuration**
-
-Find the installed binary path:
+**Step 2: Find the binary path**
 ```bash
 which financial-planner-mcp
 ```
 
-Then add to your MCP config (e.g. `claude_desktop_config.json`):
+**Step 3: Add to your MCP config** (e.g. `claude_desktop_config.json`):
 ```json
 {
   "mcpServers": {
     "financial-planner": {
-      "command": "/path/to/financial-planner-mcp"
+      "command": "/full/path/to/financial-planner-mcp"
     }
   }
 }
 ```
 
-> **Note**: Replace `/path/to/financial-planner-mcp` with the output of `which financial-planner-mcp`. Using `npx` is not recommended as it can cause connection failures due to download delays on first run.
+> **Important**: Always use the **full absolute path** to the binary (output of `which financial-planner-mcp`). Using `npx` or a bare binary name can cause "Failed to connect" errors because MCP clients may not inherit your shell's PATH (especially with nvm), and `npx` writes to stdout during package resolution which breaks the JSON-RPC handshake.
 
 ### Local Development
 
