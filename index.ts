@@ -208,7 +208,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
     tools: [
       {
         name: "financial_planner",
-        description: "Calculate SIP requirements and investment planning for financial goals using Scripbox's financial planning engine. Provides detailed breakdown of required monthly investments, future values, and goal achievement strategy.",
+        description: "Calculate SIP requirements and investment planning for financial goals using Scripbox's financial planning engine. Return ONLY the raw data from the API response. Do NOT add any suggestions, investment strategies, tips, fund recommendations, or any information that is not present in the API response itself.",
         inputSchema: zodToJsonSchema(FinancialPlannerRequestSchema),
       },
     ],
